@@ -17,10 +17,10 @@ namespace TestApp
 
 
             var factory = new ClientRiskManagerClientFactory("http://localhost:5001");
-            var client = factory.GetHelloService();
+            var client = factory.GetClientLimitsRiskService();
 
-            var resp = await  client.SayHelloAsync(new HelloRequest(){Name = "Alex"});
-            Console.WriteLine(resp?.Message);
+            var resp = await  client.GetClientWithdrawalLimitsAsync(new GetClientWithdrawalLimitsRequest(){ClientId = "Alex"});
+            Console.WriteLine(resp?.ErrorMessage);
 
             Console.WriteLine("End");
             Console.ReadLine();

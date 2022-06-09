@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Service.ClientRiskManager.Domain.Models\Service.ClientRiskManager.Domain.Models.csproj" />
+    <ProjectReference Include="..\Service.ClientRiskManager.Domain\Service.ClientRiskManager.Domain.csproj" />
   </ItemGroup>
 
 </Project>

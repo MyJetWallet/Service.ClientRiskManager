@@ -5,9 +5,9 @@ using Service.ClientRiskManager.Grpc.Models;
 namespace Service.ClientRiskManager.Grpc
 {
     [ServiceContract]
-    public interface IHelloService
+    public interface IClientLimitsRiskService
     {
         [OperationContract]
-        Task<HelloMessage> SayHelloAsync(HelloRequest request);
+        Task<GetClientWithdrawalLimitsResponse> GetClientWithdrawalLimitsAsync(GetClientWithdrawalLimitsRequest request);
     }
 }

@@ -11,6 +11,6 @@ namespace Service.ClientRiskManager.Client
         {
         }
 
-        public IHelloService GetHelloService() => CreateGrpcService<IHelloService>();
+        public IClientLimitsRiskService GetClientLimitsRiskService() => CreateGrpcService<IClientLimitsRiskService>();
     }
 }

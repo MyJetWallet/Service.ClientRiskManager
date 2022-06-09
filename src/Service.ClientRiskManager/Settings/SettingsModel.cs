@@ -13,5 +13,14 @@ namespace Service.ClientRiskManager.Settings
 
         [YamlProperty("ClientRiskManager.ElkLogs")]
         public LogElkSettings ElkLogs { get; set; }
+        
+        // [YamlProperty("ClientRiskManager.MyNoSqlReaderHostPort")]
+        // public string MyNoSqlReaderHostPort { get; set; }
+
+        [YamlProperty("ClientRiskManager.MyNoSqlWriterUrl")]
+        public string MyNoSqlWriterUrl { get; set; }
+
+        [YamlProperty("ClientRiskManager.SpotServiceBusHostPort")]
+        public string SpotServiceBusHostPort { get; set; }
     }
 }

@@ -11,7 +11,7 @@ namespace Service.ClientRiskManager.Client
         {
             var factory = new ClientRiskManagerClientFactory(grpcServiceUrl);
 
-            builder.RegisterInstance(factory.GetHelloService()).As<IHelloService>().SingleInstance();
+            builder.RegisterInstance(factory.GetClientLimitsRiskService()).As<IClientLimitsRiskService>().SingleInstance();
         }
     }
 }

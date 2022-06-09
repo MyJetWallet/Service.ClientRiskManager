@@ -46,7 +46,7 @@ namespace Service.ClientRiskManager
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGrpcSchema<HelloService, IHelloService>();
+                endpoints.MapGrpcSchema<ClientLimitsRiskService, IClientLimitsRiskService>();
 
                 endpoints.MapGrpcSchemaRegistry();
 
@@ -61,6 +61,7 @@ namespace Service.ClientRiskManager
         {
             builder.RegisterModule<SettingsModule>();
             builder.RegisterModule<ServiceModule>();
+            builder.RegisterModule<MyNoSqlModule>();
         }
     }
 }

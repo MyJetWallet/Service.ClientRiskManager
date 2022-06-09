@@ -3,9 +3,8 @@ using System.Runtime.Serialization;
 namespace Service.ClientRiskManager.Grpc.Models
 {
     [DataContract]
-    public class HelloRequest
+    public class GetClientWithdrawalLimitsRequest
     {
-        [DataMember(Order = 1)]
-        public string Name { get; set; }
+        [DataMember(Order = 1)] public string ClientId { get; set; }
     }
 }
