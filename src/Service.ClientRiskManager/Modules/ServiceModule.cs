@@ -9,20 +9,13 @@ using Service.ClientProfile.Client;
 
 namespace Service.ClientRiskManager.Modules
 {
-    public class ServiceModule: Module
+    public class ServiceModule : Module
     {
         protected override void Load(ContainerBuilder builder)
         {
             RegisterServiceBus(builder);
             RegisterSubscribers(builder);
             builder.RegisterType<DepositRiskManager>().SingleInstance().As<IDepositRiskManager>().AutoActivate().AsSelf();
-
-            builder
-               .RegisterMyServiceBusSubscriberSingle<SignalCircleChargeback>(
-                   serviceBusClient,
-                   SignalCircleChargeback.ServiceBusTopicName,
-                   "client-risk-manager",
-                   MyServiceBus.Abstractions.TopicQueueType.Permanent);
 
             builder.RegisterClientProfileClientWithoutCache(Program.Settings.ClientProfileGrpcServiceUrl);
         }
@@ -33,11 +26,19 @@ namespace Service.ClientRiskManager.Modules
             var serviceBusClient = builder.RegisterMyServiceBusTcpClient(
                 Program.ReloadedSettings(e => e.SpotServiceBusHostPort),
                 Program.LogFactory);
+
+            builder
+            .RegisterMyServiceBusSubscriberSingle<SignalCircleChargeback>(
+                serviceBusClient,
+                SignalCircleChargeback.ServiceBusTopicName,
+                "client-risk-manager",
+                MyServiceBus.Abstractions.TopicQueueType.Permanent);
         }
 
         private static void RegisterSubscribers(ContainerBuilder builder)
         {
             builder.RegisterType<DepositSubscriber>().As<IStartable>().SingleInstance().AutoActivate();
+            builder.RegisterType<SignalCircleChargebackSubscriber>().AutoActivate();
         }
     }
 }
