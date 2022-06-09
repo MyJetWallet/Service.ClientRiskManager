@@ -4,6 +4,8 @@ using Autofac.Core.Registration;
 using MyJetWallet.Sdk.ServiceBus;
 using Service.ClientRiskManager.Domain;
 using Service.ClientRiskManager.Subscribers;
+using Service.Circle.Webhooks.Domain.Models;
+using Service.ClientProfile.Client;
 
 namespace Service.ClientRiskManager.Modules
 {
@@ -15,6 +17,14 @@ namespace Service.ClientRiskManager.Modules
             RegisterSubscribers(builder);
             builder.RegisterType<DepositRiskManager>().SingleInstance().As<IDepositRiskManager>().AutoActivate().AsSelf();
 
+            builder
+               .RegisterMyServiceBusSubscriberSingle<SignalCircleChargeback>(
+                   serviceBusClient,
+                   SignalCircleChargeback.ServiceBusTopicName,
+                   "client-risk-manager",
+                   MyServiceBus.Abstractions.TopicQueueType.Permanent);
+
+            builder.RegisterClientProfileClientWithoutCache(Program.Settings.ClientProfileGrpcServiceUrl);
         }
 
         private static void RegisterServiceBus(ContainerBuilder builder)

@@ -22,5 +22,9 @@ namespace Service.ClientRiskManager.Settings
 
         [YamlProperty("ClientRiskManager.SpotServiceBusHostPort")]
         public string SpotServiceBusHostPort { get; set; }
+
+        [YamlProperty("ClientRiskManager.ClientProfileGrpcServiceUrl")]
+        public string ClientProfileGrpcServiceUrl { get; set; }
+
     }
 }
