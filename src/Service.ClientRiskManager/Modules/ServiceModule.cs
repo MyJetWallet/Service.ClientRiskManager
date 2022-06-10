@@ -28,19 +28,20 @@ namespace Service.ClientRiskManager.Modules
             var serviceBusClient = builder.RegisterMyServiceBusTcpClient(
                 Program.ReloadedSettings(e => e.SpotServiceBusHostPort),
                 Program.LogFactory);
+            var queueName = "client-risk-manager";
 
             builder
-            .RegisterMyServiceBusSubscriberSingle<SignalCircleChargeback>(
-                serviceBusClient,
-                SignalCircleChargeback.ServiceBusTopicName,
-                "client-risk-manager",
-                MyServiceBus.Abstractions.TopicQueueType.Permanent);
-            
+                .RegisterMyServiceBusSubscriberSingle<SignalCircleChargeback>(
+                    serviceBusClient,
+                    SignalCircleChargeback.ServiceBusTopicName,
+                    queueName,
+                    MyServiceBus.Abstractions.TopicQueueType.Permanent);
+
             builder
                 .RegisterMyServiceBusSubscriberSingle<Deposit>(
                     serviceBusClient,
                     Deposit.TopicName,
-                    "client-risk-manager",
+                    queueName,
                     MyServiceBus.Abstractions.TopicQueueType.Permanent);
         }
 
