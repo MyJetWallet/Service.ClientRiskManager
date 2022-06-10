@@ -18,6 +18,7 @@
     <PackageReference Include="MyJetWallet.Sdk.Service" Version="2.2.4" />
     <PackageReference Include="MyJetWallet.Sdk.ServiceBus" Version="2.2.4" />
     <PackageReference Include="MyJetWallet.Service.Bitgo.DepositDetector.Client" Version="2.2.10" />
+    <PackageReference Include="MyJetWallet.Service.IndexPrices.Client" Version="1.7.3" />
     <PackageReference Include="MyJetWallet.Service.Circle.Webhooks.Client" Version="2.2.0" />
     <PackageReference Include="MyJetWallet.Service.ClientProfile.Client" Version="1.2.4" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
