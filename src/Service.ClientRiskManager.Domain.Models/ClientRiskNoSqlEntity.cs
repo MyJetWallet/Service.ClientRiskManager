@@ -12,10 +12,7 @@ namespace Service.ClientRiskManager.Domain.Models
         public static string GenerateRowKey(string clientId) => clientId;
 
         public List<CircleClientDeposit> CardDeposits { get; set; }
-        public decimal DepositLast30DaysInUsd { get; set; }
-        public decimal DepositLast14DaysInUsd { get; set; }
-        public decimal DepositLast7DaysInUsd { get; set; }
-        public decimal DepositLast1DaysInUsd { get; set; }
+        public CircleClientDepositSummary CardDepositsSummary { get; set; }
 
         public static ClientRiskNoSqlEntity Create(string brokerId, string clientId, CircleClientDeposit deposit)
         {
@@ -24,10 +21,13 @@ namespace Service.ClientRiskManager.Domain.Models
                 PartitionKey = GeneratePartitionKey(brokerId),
                 RowKey = GenerateRowKey(clientId),
                 CardDeposits = new List<CircleClientDeposit>() {deposit},
-                DepositLast30DaysInUsd = deposit.BalanceInUsd,
-                DepositLast14DaysInUsd = deposit.BalanceInUsd,
-                DepositLast7DaysInUsd = deposit.BalanceInUsd,
-                DepositLast1DaysInUsd = deposit.BalanceInUsd,
+                CardDepositsSummary = new CircleClientDepositSummary()
+                {
+                    DepositLast30DaysInUsd = deposit.BalanceInUsd,
+                    DepositLast14DaysInUsd = deposit.BalanceInUsd,
+                    DepositLast7DaysInUsd = deposit.BalanceInUsd,
+                    DepositLast1DaysInUsd = deposit.BalanceInUsd,
+                }
 
             };
             return entity;
@@ -96,28 +96,28 @@ namespace Service.ClientRiskManager.Domain.Models
 
         public void RecalcDeposits(DateTime currDay)
         {
-            DepositLast30DaysInUsd = 0m;
-            DepositLast14DaysInUsd = 0m; 
-            DepositLast7DaysInUsd = 0m;
-            DepositLast1DaysInUsd = 0m;    
+            CardDepositsSummary.DepositLast30DaysInUsd = 0m;
+            CardDepositsSummary.DepositLast14DaysInUsd = 0m; 
+            CardDepositsSummary.DepositLast7DaysInUsd = 0m;
+            CardDepositsSummary.DepositLast1DaysInUsd = 0m;    
             
             foreach (var cardDeposit in CardDeposits)
             {
                 if (cardDeposit.Date >= currDay.AddMonths(-1))
                 {
-                    DepositLast30DaysInUsd += cardDeposit.BalanceInUsd;
+                    CardDepositsSummary.DepositLast30DaysInUsd += cardDeposit.BalanceInUsd;
                 }
                 if (cardDeposit.Date >= currDay.AddDays(-14))
                 {
-                    DepositLast14DaysInUsd += cardDeposit.BalanceInUsd;
+                    CardDepositsSummary.DepositLast14DaysInUsd += cardDeposit.BalanceInUsd;
                 }
                 if (cardDeposit.Date >= currDay.AddDays(-7))
                 {
-                    DepositLast7DaysInUsd += cardDeposit.BalanceInUsd;
+                    CardDepositsSummary.DepositLast7DaysInUsd += cardDeposit.BalanceInUsd;
                 }
                 if (cardDeposit.Date >= currDay.AddDays(-1))
                 {
-                    DepositLast1DaysInUsd += cardDeposit.BalanceInUsd;
+                    CardDepositsSummary.DepositLast1DaysInUsd += cardDeposit.BalanceInUsd;
                 }
             }
         }
