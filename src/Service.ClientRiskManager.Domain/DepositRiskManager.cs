@@ -24,15 +24,11 @@ public class DepositRiskManager : IDepositRiskManager
         _writer = writer;
     }
 
-    public async Task ApplyNewDepositAsync(IReadOnlyList<Deposit> messages)
+    public async Task ApplyNewDepositAsync(Deposit message)
     {
-        foreach (var message in messages)
+        if (message.Status == DepositStatus.Processed && message.Integration == CircleCard)
         {
-            if (message.Status == DepositStatus.Processed && message.Integration == CircleCard)
-            {
-                await UpsertDeposit(message);
-                continue;
-            }
+            await UpsertDeposit(message);
         }
     }
 

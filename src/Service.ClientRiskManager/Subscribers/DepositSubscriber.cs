@@ -8,30 +8,21 @@ using Service.ClientRiskManager.Domain;
 
 namespace Service.ClientRiskManager.Subscribers
 {
-    public class DepositSubscriber : IStartable
+    public class DepositSubscriber
     {
-        private readonly ISubscriber<IReadOnlyList<Deposit>> _subscriber;
-        private readonly ILogger<DepositSubscriber> _logger;
         private readonly IDepositRiskManager _manager;
 
         public DepositSubscriber(
-            ISubscriber<IReadOnlyList<Deposit>> subscriber,
-            IDepositRiskManager manager, 
-            ILogger<DepositSubscriber> logger)
+            ISubscriber<Deposit> subscriber,
+            IDepositRiskManager manager)
         {
-            _subscriber = subscriber;
             _manager = manager;
-            _logger = logger;
+            subscriber.Subscribe(Handler);
         }
 
-        public void Start()
+        private async ValueTask Handler(Deposit message)
         {
-            _subscriber.Subscribe(Handler);
-        }
-
-        private async ValueTask Handler(IReadOnlyList<Deposit> messages)
-        {
-            await _manager.ApplyNewDepositAsync(messages);
+            await _manager.ApplyNewDepositAsync(message);
         }
     }
 }

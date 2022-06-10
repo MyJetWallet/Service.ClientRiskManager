@@ -6,5 +6,5 @@ namespace Service.ClientRiskManager.Domain;
 
 public interface IDepositRiskManager
 {
-    Task ApplyNewDepositAsync(IReadOnlyList<Deposit> messages);
+    Task ApplyNewDepositAsync(Deposit message);
 }

@@ -16,6 +16,7 @@ namespace Service.ClientRiskManager.Modules
         {
             RegisterServiceBus(builder);
             RegisterSubscribers(builder);
+            
             builder.RegisterType<DepositRiskManager>().SingleInstance().As<IDepositRiskManager>().AutoActivate().AsSelf();
 
             builder.RegisterClientProfileClientWithoutCache(Program.Settings.ClientProfileGrpcServiceUrl);
@@ -45,7 +46,7 @@ namespace Service.ClientRiskManager.Modules
 
         private static void RegisterSubscribers(ContainerBuilder builder)
         {
-            builder.RegisterType<DepositSubscriber>().As<IStartable>().SingleInstance().AutoActivate();
+            builder.RegisterType<DepositSubscriber>().AutoActivate();
             builder.RegisterType<SignalCircleChargebackSubscriber>().AutoActivate();
         }
     }
