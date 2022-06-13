@@ -13,8 +13,8 @@ namespace Service.ClientRiskManager.Domain.Models
 
         public List<CircleClientDeposit> CardDeposits { get; set; }
         public CircleClientDepositSummary CardDepositsSummary { get; set; }
-
-        public static ClientRiskNoSqlEntity Create(string brokerId, string clientId, CircleClientDeposit deposit)
+        public decimal MinDepositAmountInUsd { get; set; }
+        public static ClientRiskNoSqlEntity Create(string brokerId, string clientId, CircleClientDeposit deposit, decimal minDepositAmount = 0m)
         {
             var entity = new ClientRiskNoSqlEntity
             {
@@ -27,8 +27,8 @@ namespace Service.ClientRiskManager.Domain.Models
                     DepositLast14DaysInUsd = deposit.BalanceInUsd,
                     DepositLast7DaysInUsd = deposit.BalanceInUsd,
                     DepositLast1DaysInUsd = deposit.BalanceInUsd,
-                }
-
+                },
+                MinDepositAmountInUsd = minDepositAmount
             };
             return entity;
         }
