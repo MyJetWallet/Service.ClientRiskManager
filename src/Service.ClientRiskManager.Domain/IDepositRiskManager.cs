@@ -7,4 +7,5 @@ namespace Service.ClientRiskManager.Domain;
 public interface IDepositRiskManager
 {
     Task ApplyNewDepositAsync(Deposit message);
+    Task RecalculateAllAsync();
 }

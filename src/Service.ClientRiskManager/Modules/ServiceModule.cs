@@ -7,6 +7,7 @@ using Service.ClientRiskManager.Domain;
 using Service.ClientRiskManager.Subscribers;
 using Service.Circle.Webhooks.Domain.Models;
 using Service.ClientProfile.Client;
+using Service.ClientRiskManager.Jobs;
 
 namespace Service.ClientRiskManager.Modules
 {
@@ -17,9 +18,18 @@ namespace Service.ClientRiskManager.Modules
             RegisterServiceBus(builder);
             RegisterSubscribers(builder);
             
-            builder.RegisterType<DepositRiskManager>().SingleInstance().As<IDepositRiskManager>().AutoActivate().AsSelf();
+            builder.RegisterType<DepositRiskManager>()
+                .SingleInstance()
+                .As<IDepositRiskManager>()
+                .AutoActivate().AsSelf();
 
             builder.RegisterClientProfileClientWithoutCache(Program.Settings.ClientProfileGrpcServiceUrl);
+            
+            builder
+                .RegisterType<RecalculateRiskBackgroundJob>()
+                .As<IStartable>()
+                .AutoActivate()
+                .SingleInstance();
         }
 
         private static void RegisterServiceBus(ContainerBuilder builder)

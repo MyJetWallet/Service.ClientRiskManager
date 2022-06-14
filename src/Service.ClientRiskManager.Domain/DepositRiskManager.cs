@@ -16,7 +16,7 @@ public class DepositRiskManager : IDepositRiskManager
 
     private readonly ILogger<DepositRiskManager> _logger;
     private readonly IMyNoSqlServerDataWriter<ClientRiskNoSqlEntity> _writer;
-    
+
     public DepositRiskManager(ILogger<DepositRiskManager> logger,
         IMyNoSqlServerDataWriter<ClientRiskNoSqlEntity> writer)
     {
@@ -41,7 +41,7 @@ public class DepositRiskManager : IDepositRiskManager
             var cachedEntity = await _writer.GetAsync(
                 ClientRiskNoSqlEntity.GeneratePartitionKey(deposit.BrokerId),
                 ClientRiskNoSqlEntity.GenerateRowKey(deposit.ClientId));
-            
+
             var newDepositInUsd = deposit.Amount * deposit.AssetIndexPrice;
 
             if (cachedEntity != null)
@@ -53,11 +53,11 @@ public class DepositRiskManager : IDepositRiskManager
                     AssetSymbol = deposit.AssetSymbol,
                     BalanceInUsd = newDepositInUsd
                 });
-                
+
                 //var currDate = DateTime.UtcNow;
                 cachedEntity.CleanupDepositsLess30Days(deposit.EventDate);
                 cachedEntity.RecalcDeposits(deposit.EventDate);
-                
+
                 await _writer.InsertOrReplaceAsync(cachedEntity);
             }
             else
@@ -76,6 +76,29 @@ public class DepositRiskManager : IDepositRiskManager
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unable to process CircleCard deposit due to {error}", ex.Message);
+        }
+    }
+
+    public async Task RecalculateAllAsync()
+    {
+        try
+        {
+            _logger.LogInformation("Recalculating CircleCard all clients deposits");
+
+            var cachedEntity = await _writer.GetAsync();
+            var clientsDeposits = cachedEntity ?? new List<ClientRiskNoSqlEntity>();
+            var currDate = DateTime.UtcNow;
+            foreach (var clientDeposit in clientsDeposits)
+            {
+                clientDeposit.CleanupDepositsLess30Days(currDate);
+                clientDeposit.RecalcDeposits(currDate);
+
+                await _writer.InsertOrReplaceAsync(clientDeposit);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unable to recalculate CircleCard client deposit due to {error}", ex.Message);
         }
     }
 }
