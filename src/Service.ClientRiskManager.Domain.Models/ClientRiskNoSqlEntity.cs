@@ -85,13 +85,15 @@ namespace Service.ClientRiskManager.Domain.Models
 
         public void CleanupDepositsLess30Days(DateTime currDay)
         {
+            var toRemove = new List<CircleClientDeposit>();
             foreach (var cardDeposit in CardDeposits)
             {
                 if (cardDeposit.Date < currDay.AddMonths(-1))
                 {
-                    CardDeposits.Remove(cardDeposit);
+                    toRemove.Add(cardDeposit);
                 }
             }
+            CardDeposits.RemoveAll(toRemove.Contains);
         }
 
         public void RecalcDeposits(DateTime currDay)
