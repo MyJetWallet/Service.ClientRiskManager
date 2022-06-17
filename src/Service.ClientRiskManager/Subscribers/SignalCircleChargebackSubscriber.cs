@@ -41,13 +41,18 @@ namespace Service.ClientRiskManager.Subscribers
 
                 var blockers = _clientProfileService.GetClientBlockers(new ClientProfile.Grpc.Models.Requests.Blockers.GetClientProfileBlockersRequest
                 {
+                    ClientId = signal.ClientId
                 });
 
+                var hashSetIds = new HashSet<int>();
                 var hashSet = new HashSet<ClientProfile.Domain.Models.BlockingType>();
 
                 await foreach (var item in blockers)
                 {
+                    if (hashSetIds.Contains(item.BlockerId))
+                        break;
                     hashSet.Add(item.BlockedOperationType);
+                    hashSetIds.Add(item.BlockerId);
                 }
 
                 if (!hashSet.Contains(ClientProfile.Domain.Models.BlockingType.Withdrawal))
