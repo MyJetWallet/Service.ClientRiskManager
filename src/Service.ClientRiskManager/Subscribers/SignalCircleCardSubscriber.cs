@@ -50,7 +50,7 @@ namespace Service.ClientRiskManager.Subscribers
 
             try
             {
-                if (!signal.ErrorCode.HasValue &&
+                if (!signal.ErrorCode.HasValue ||
                     !CardErrorCodesAsFraud.ErrorCodes.Contains(signal.ErrorCode.Value))
                     return;
 
