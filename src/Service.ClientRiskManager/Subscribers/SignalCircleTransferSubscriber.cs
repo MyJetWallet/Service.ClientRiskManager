@@ -46,7 +46,7 @@ namespace Service.ClientRiskManager.Subscribers
 
             try
             {
-                if (!signal.PaymentInfo.ErrorCode.HasValue &&
+                if (!signal.PaymentInfo.ErrorCode.HasValue ||
                     !PaymentErrorCodesAsFraud.ErrorCodes.Contains(signal.PaymentInfo.ErrorCode.Value))
                     return;
 
