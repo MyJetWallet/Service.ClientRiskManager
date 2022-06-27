@@ -21,7 +21,7 @@ public class DepositRiskManager : IDepositRiskManager
     private readonly IBitgoDepositService _bitgoDepositService;
 
     public DepositRiskManager(ILogger<DepositRiskManager> logger,
-        IMyNoSqlServerDataWriter<ClientRiskNoSqlEntity> writer, 
+        IMyNoSqlServerDataWriter<ClientRiskNoSqlEntity> writer,
         IBitgoDepositService bitgoDepositService)
     {
         _logger = logger;
@@ -91,51 +91,62 @@ public class DepositRiskManager : IDepositRiskManager
             _logger.LogInformation("Recalculating CircleCard all clients deposits");
 
             var currDate = DateTime.UtcNow;
-            var allDeposits = await _bitgoDepositService
-                .GetDepositsByPeriod(new GetDepositsByPeriodRequest
-            {
-                LastId = 0,
-                BatchSize = 0,
-                ClientId = null,
-                WalletId = null,
-                Integration = CircleCard,
-                OnlySuccessfully = true,
-                FromDate = currDate.AddMonths(-1),
-                ToDate = currDate
-            });
+            var lastId = 0L;
+            var batchSize = 10000;
 
-            var depositsFromDb = allDeposits?.DepositCollection ?? new List<Deposit>();
-            var depositsFromDbByClient = depositsFromDb
-                .GroupBy(e => new {e.BrokerId, e.ClientId}, 
-                    (k, c) => new ClientRiskNoSqlEntity
+            var depositsResponse = await _bitgoDepositService
+                .GetDepositsByPeriod(new GetDepositsByPeriodRequest
                 {
-                    PartitionKey = ClientRiskNoSqlEntity.GeneratePartitionKey(k.BrokerId),
-                    RowKey = ClientRiskNoSqlEntity.GenerateRowKey(k.ClientId),
-                    // TimeStamp = null,
-                    // Expires = null,
-                    CardDeposits = c.Select(cs => new CircleClientDeposit
+                    LastId = lastId,
+                    BatchSize = batchSize,
+                    ClientId = null,
+                    WalletId = null,
+                    Integration = CircleCard,
+                    OnlySuccessfully = true,
+                    FromDate = currDate.AddMonths(-1),
+                    ToDate = currDate
+                });
+
+            // lastId = depositsResponse.IdForNextQuery;
+            // if (!depositsResponse.Success || depositsResponse.DepositCollection == null ||
+            //     depositsResponse.DepositCollection.Count == 0)
+            // {
+            //     ;
+            // }
+
+            var depositsFromDb = depositsResponse?.DepositCollection ?? new List<Deposit>();
+
+            var depositsFromDbByClient = depositsFromDb
+                .GroupBy(e => new { e.BrokerId, e.ClientId },
+                    (k, c) => new ClientRiskNoSqlEntity
                     {
-                        Date = cs.EventDate,
-                        Balance = cs.Amount,
-                        BalanceInUsd = 0,
-                        AssetSymbol = cs.AssetSymbol
-                    }).ToList(),
-                    CardDepositsSummary = new CircleClientDepositSummary
-                    {
-                        DepositLast30DaysInUsd = 0,
-                        DepositLast14DaysInUsd = 0,
-                        DepositLast7DaysInUsd = 0,
-                        DepositLast1DaysInUsd = 0
-                    },
-                    MinDepositAmountInUsd = 0
-                })
+                        PartitionKey = ClientRiskNoSqlEntity.GeneratePartitionKey(k.BrokerId),
+                        RowKey = ClientRiskNoSqlEntity.GenerateRowKey(k.ClientId),
+                        // TimeStamp = null,
+                        // Expires = null,
+                        CardDeposits = c.Select(cs => new CircleClientDeposit
+                        {
+                            Date = cs.EventDate,
+                            Balance = cs.Amount,
+                            BalanceInUsd = cs.Amount * cs.AssetIndexPrice,
+                            AssetSymbol = cs.AssetSymbol
+                        }).ToList(),
+                        CardDepositsSummary = new CircleClientDepositSummary
+                        {
+                            DepositLast30DaysInUsd = 0,
+                            DepositLast14DaysInUsd = 0,
+                            DepositLast7DaysInUsd = 0,
+                            DepositLast1DaysInUsd = 0
+                        },
+                        MinDepositAmountInUsd = 0
+                    })
                 .ToList();
 
             foreach (var deposit in depositsFromDbByClient)
             {
                 deposit.RecalcDeposits(currDate);
             }
-            
+
             await _writer.CleanAndBulkInsertAsync(depositsFromDbByClient);
         }
         catch (Exception ex)

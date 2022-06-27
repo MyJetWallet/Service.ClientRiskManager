@@ -11,12 +11,11 @@ namespace Service.ClientRiskManager.Jobs
 {
     public class RecalculateRiskBackgroundJob : IStartable
     {
-        //private const int TimerSpan60Sec = 60;
         private const int TimerSpan5Min = 5*60;
+        //private const int TimerSpan5Min = 30;
         private readonly ILogger<RecalculateRiskBackgroundJob> _logger;
         private readonly MyTaskTimer _operationsTimer;
         private readonly IDepositRiskManager _manager;
-
 
         public RecalculateRiskBackgroundJob(
             ILogger<RecalculateRiskBackgroundJob> logger, 

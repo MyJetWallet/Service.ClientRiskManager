@@ -38,5 +38,8 @@ namespace Service.ClientRiskManager.Settings
         [YamlProperty("ClientRiskManager.PaymetErrorCodesAsFraud")]
         public string PaymetErrorCodesAsFraud { get; set; }
 
+        [YamlProperty("ClientRiskManager.BitgoDepositServiceGrpcUrl")]
+        public string BitgoDepositServiceGrpcUrl { get; set; }
+        
     }
 }

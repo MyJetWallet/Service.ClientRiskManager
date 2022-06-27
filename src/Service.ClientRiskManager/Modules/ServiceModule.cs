@@ -1,7 +1,9 @@
-﻿using Autofac;
+﻿using System;
+using Autofac;
 using Autofac.Core;
 using Autofac.Core.Registration;
 using MyJetWallet.Sdk.ServiceBus;
+using Service.Bitgo.DepositDetector.Client;
 using Service.Bitgo.DepositDetector.Domain.Models;
 using Service.ClientRiskManager.Domain;
 using Service.ClientRiskManager.Subscribers;
@@ -24,12 +26,14 @@ namespace Service.ClientRiskManager.Modules
                 .AutoActivate().AsSelf();
 
             builder.RegisterClientProfileClientWithoutCache(Program.Settings.ClientProfileGrpcServiceUrl);
-            
+
             builder
                 .RegisterType<RecalculateRiskBackgroundJob>()
                 .As<IStartable>()
                 .AutoActivate()
                 .SingleInstance();
+
+            builder.RegisterBitgoDepositServiceClient(Program.Settings.BitgoDepositServiceGrpcUrl);
         }
     }
 }
