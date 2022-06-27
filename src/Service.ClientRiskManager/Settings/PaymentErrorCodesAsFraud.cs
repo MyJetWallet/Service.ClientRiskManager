@@ -13,7 +13,7 @@ namespace Service.ClientRiskManager.Settings
             {
                 if (_errorCodes == null)
                 {
-                    var codes = Program.Settings.CardErrorCodesAsFraud.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
+                    var codes = Program.Settings.PaymetErrorCodesAsFraud.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
 
                     _errorCodes = codes.Select(x =>
                     {
