@@ -33,56 +33,6 @@ namespace Service.ClientRiskManager.Domain.Models
             return entity;
         }
         
-        // public static ClientRiskNoSqlEntity Create(string brokerId, string clientId, List<CircleClientDeposit> deposits)
-        // {
-        //     
-        //     var (depositLast30DaysInUsd, depositLast14DaysInUsd, depositLast7DaysInUsd, depositLast1DaysInUsd) = CalcDepositLastDaysInUsd(deposits);
-        //
-        //     var entity = new ClientRiskNoSqlEntity
-        //     {
-        //         PartitionKey = GeneratePartitionKey(brokerId),
-        //         RowKey = GenerateRowKey(clientId),
-        //         //TimeStamp = null,
-        //         //Expires = null,
-        //         CardDeposits = deposits,
-        //         DepositLast30DaysInUsd = depositLast30DaysInUsd,
-        //         DepositLast14DaysInUsd = depositLast14DaysInUsd,
-        //         DepositLast7DaysInUsd = depositLast7DaysInUsd,
-        //         DepositLast1DaysInUsd = depositLast1DaysInUsd,
-        //
-        //     };
-        //     return entity;
-        // }
-        //
-        // private static (decimal, decimal, decimal, decimal) CalcDepositLastDaysInUsd(List<CircleClientDeposit> cardDeposits)
-        // {
-        //     var depositLast30DaysInUsd = 0m;
-        //     var depositLast14DaysInUsd = 0m;
-        //     var depositLast7DaysInUsd = 0m;
-        //     var depositLast1DaysInUsd = 0m;
-        //     var currDay = DateTime.UtcNow;
-        //     foreach (var cardDeposit in cardDeposits)
-        //     {
-        //         if (cardDeposit.Date >= currDay.AddMonths(-1))
-        //         {
-        //             depositLast30DaysInUsd += cardDeposit.BalanceInUsd;
-        //         }
-        //         if (cardDeposit.Date >= currDay.AddDays(-14))
-        //         {
-        //             depositLast14DaysInUsd += cardDeposit.BalanceInUsd;
-        //         }
-        //         if (cardDeposit.Date >= currDay.AddDays(-7))
-        //         {
-        //             depositLast7DaysInUsd += cardDeposit.BalanceInUsd;
-        //         }
-        //         if (cardDeposit.Date >= currDay.AddDays(-1))
-        //         {
-        //             depositLast1DaysInUsd += cardDeposit.BalanceInUsd;
-        //         }
-        //     }
-        //     return (depositLast30DaysInUsd, depositLast14DaysInUsd, depositLast7DaysInUsd, depositLast1DaysInUsd);
-        // }
-
         public void CleanupDepositsLess30Days(DateTime currDay)
         {
             var toRemove = new List<CircleClientDeposit>();

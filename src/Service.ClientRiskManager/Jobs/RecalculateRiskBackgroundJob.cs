@@ -4,17 +4,19 @@ using System.Threading.Tasks;
 using Autofac;
 using Microsoft.Extensions.Logging;
 using MyJetWallet.Sdk.Service.Tools;
+using Service.Bitgo.DepositDetector.Grpc;
 using Service.ClientRiskManager.Domain;
 
 namespace Service.ClientRiskManager.Jobs
 {
     public class RecalculateRiskBackgroundJob : IStartable
     {
-        private const int TimerSpan60Sec = 60;
-
+        //private const int TimerSpan60Sec = 60;
+        private const int TimerSpan5Min = 5*60;
         private readonly ILogger<RecalculateRiskBackgroundJob> _logger;
         private readonly MyTaskTimer _operationsTimer;
         private readonly IDepositRiskManager _manager;
+
 
         public RecalculateRiskBackgroundJob(
             ILogger<RecalculateRiskBackgroundJob> logger, 
@@ -23,7 +25,7 @@ namespace Service.ClientRiskManager.Jobs
             _logger = logger;
             _manager = manager;
             _operationsTimer = new MyTaskTimer(nameof(RecalculateRiskBackgroundJob),
-                TimeSpan.FromSeconds(TimerSpan60Sec), logger, Process);
+                TimeSpan.FromSeconds(TimerSpan5Min), logger, Process);
         }
 
         public void Start()

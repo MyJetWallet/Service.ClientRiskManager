@@ -6,6 +6,8 @@ using Microsoft.Extensions.Logging;
 using MyJetWallet.Sdk.Service;
 using MyNoSqlServer.Abstractions;
 using Service.Bitgo.DepositDetector.Domain.Models;
+using Service.Bitgo.DepositDetector.Grpc;
+using Service.Bitgo.DepositDetector.Grpc.Models;
 using Service.ClientRiskManager.Domain.Models;
 
 namespace Service.ClientRiskManager.Domain;
@@ -16,12 +18,15 @@ public class DepositRiskManager : IDepositRiskManager
 
     private readonly ILogger<DepositRiskManager> _logger;
     private readonly IMyNoSqlServerDataWriter<ClientRiskNoSqlEntity> _writer;
+    private readonly IBitgoDepositService _bitgoDepositService;
 
     public DepositRiskManager(ILogger<DepositRiskManager> logger,
-        IMyNoSqlServerDataWriter<ClientRiskNoSqlEntity> writer)
+        IMyNoSqlServerDataWriter<ClientRiskNoSqlEntity> writer, 
+        IBitgoDepositService bitgoDepositService)
     {
         _logger = logger;
         _writer = writer;
+        _bitgoDepositService = bitgoDepositService;
     }
 
     public async Task ApplyNewDepositAsync(Deposit message)
@@ -85,16 +90,53 @@ public class DepositRiskManager : IDepositRiskManager
         {
             _logger.LogInformation("Recalculating CircleCard all clients deposits");
 
-            var cachedEntity = await _writer.GetAsync();
-            var clientsDeposits = cachedEntity ?? new List<ClientRiskNoSqlEntity>();
             var currDate = DateTime.UtcNow;
-            foreach (var clientDeposit in clientsDeposits)
+            var allDeposits = await _bitgoDepositService
+                .GetDepositsByPeriod(new GetDepositsByPeriodRequest
             {
-                clientDeposit.CleanupDepositsLess30Days(currDate);
-                clientDeposit.RecalcDeposits(currDate);
+                LastId = 0,
+                BatchSize = 0,
+                ClientId = null,
+                WalletId = null,
+                Integration = CircleCard,
+                OnlySuccessfully = true,
+                FromDate = currDate.AddMonths(-1),
+                ToDate = currDate
+            });
 
-                await _writer.InsertOrReplaceAsync(clientDeposit);
+            var depositsFromDb = allDeposits?.DepositCollection ?? new List<Deposit>();
+            var depositsFromDbByClient = depositsFromDb
+                .GroupBy(e => new {e.BrokerId, e.ClientId}, 
+                    (k, c) => new ClientRiskNoSqlEntity
+                {
+                    PartitionKey = ClientRiskNoSqlEntity.GeneratePartitionKey(k.BrokerId),
+                    RowKey = ClientRiskNoSqlEntity.GenerateRowKey(k.ClientId),
+                    // TimeStamp = null,
+                    // Expires = null,
+                    CardDeposits = c.Select(cs => new CircleClientDeposit
+                    {
+                        Date = cs.EventDate,
+                        Balance = cs.Amount,
+                        BalanceInUsd = 0,
+                        AssetSymbol = cs.AssetSymbol
+                    }).ToList(),
+                    CardDepositsSummary = new CircleClientDepositSummary
+                    {
+                        DepositLast30DaysInUsd = 0,
+                        DepositLast14DaysInUsd = 0,
+                        DepositLast7DaysInUsd = 0,
+                        DepositLast1DaysInUsd = 0
+                    },
+                    MinDepositAmountInUsd = 0
+                })
+                .ToList();
+
+            foreach (var deposit in depositsFromDbByClient)
+            {
+                deposit.RecalcDeposits(currDate);
             }
+            
+            await _writer.CleanAndBulkInsertAsync(depositsFromDbByClient);
         }
         catch (Exception ex)
         {
