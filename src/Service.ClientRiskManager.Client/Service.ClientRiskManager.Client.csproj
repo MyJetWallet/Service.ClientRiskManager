@@ -7,6 +7,8 @@
   <ItemGroup>
     <ProjectReference PrivateAssets="All" Include="..\Service.ClientRiskManager.Domain.Models\Service.ClientRiskManager.Domain.Models.csproj" />
     <ProjectReference PrivateAssets="All" Include="..\Service.ClientRiskManager.Grpc\Service.ClientRiskManager.Grpc.csproj" />
+    <ProjectReference PrivateAssets="All" Include="..\Service.ClientRiskManager.MyNoSql\Service.ClientRiskManager.MyNoSql.csproj" />
+	<ProjectReference PrivateAssets="All" Include="..\Service.ClientRiskManager.ServiceBus\Service.ClientRiskManager.ServiceBus.csproj" />
   </ItemGroup>
 
   <ItemGroup>

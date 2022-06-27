@@ -8,6 +8,7 @@ using Service.ClientRiskManager.Subscribers;
 using Service.Circle.Webhooks.Domain.Models;
 using Service.ClientProfile.Client;
 using Service.ClientRiskManager.Jobs;
+using Service.Circle.Wallets.Client;
 
 namespace Service.ClientRiskManager.Modules
 {
@@ -15,9 +16,8 @@ namespace Service.ClientRiskManager.Modules
     {
         protected override void Load(ContainerBuilder builder)
         {
-            RegisterServiceBus(builder);
-            RegisterSubscribers(builder);
-            
+            builder.RegisterCircleWalletsClientWithoutCache(Program.Settings.CircleWalletsGrpcServiceUrl);
+
             builder.RegisterType<DepositRiskManager>()
                 .SingleInstance()
                 .As<IDepositRiskManager>()
@@ -30,35 +30,6 @@ namespace Service.ClientRiskManager.Modules
                 .As<IStartable>()
                 .AutoActivate()
                 .SingleInstance();
-        }
-
-        private static void RegisterServiceBus(ContainerBuilder builder)
-        {
-            //Subscribers
-            var serviceBusClient = builder.RegisterMyServiceBusTcpClient(
-                Program.ReloadedSettings(e => e.SpotServiceBusHostPort),
-                Program.LogFactory);
-            var queueName = "client-risk-manager";
-
-            builder
-                .RegisterMyServiceBusSubscriberSingle<SignalCircleChargeback>(
-                    serviceBusClient,
-                    SignalCircleChargeback.ServiceBusTopicName,
-                    queueName,
-                    MyServiceBus.Abstractions.TopicQueueType.Permanent);
-
-            builder
-                .RegisterMyServiceBusSubscriberSingle<Deposit>(
-                    serviceBusClient,
-                    Deposit.TopicName,
-                    queueName,
-                    MyServiceBus.Abstractions.TopicQueueType.Permanent);
-        }
-
-        private static void RegisterSubscribers(ContainerBuilder builder)
-        {
-            builder.RegisterType<DepositSubscriber>().AutoActivate();
-            builder.RegisterType<SignalCircleChargebackSubscriber>().AutoActivate();
         }
     }
 }

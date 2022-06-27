@@ -26,5 +26,11 @@ namespace Service.ClientRiskManager.Settings
         [YamlProperty("ClientRiskManager.ClientProfileGrpcServiceUrl")]
         public string ClientProfileGrpcServiceUrl { get; set; }
 
+        [YamlProperty("ClientRiskManager.CircleWalletsGrpcServiceUrl")]
+        public string CircleWalletsGrpcServiceUrl { get; set; }
+
+        [YamlProperty("ClientRiskManager.DisableCircleFraudDetection")]
+        public bool DisableCircleFraudDetection { get; set; } = false;
+
     }
 }

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30804.86
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32421.90
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service.ClientRiskManager", "src\Service.ClientRiskManager\Service.ClientRiskManager.csproj", "{740DF849-06AA-448E-8B09-91ECA236A051}"
 EndProject
@@ -30,7 +30,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.github\workflows\update_nuget.yaml = .github\workflows\update_nuget.yaml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.ClientRiskManager.Domain", "src\Service.ClientRiskManager.Domain\Service.ClientRiskManager.Domain.csproj", "{5CFE74A4-CDBB-4E2D-9C0A-9CEF20DCB38B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service.ClientRiskManager.Domain", "src\Service.ClientRiskManager.Domain\Service.ClientRiskManager.Domain.csproj", "{5CFE74A4-CDBB-4E2D-9C0A-9CEF20DCB38B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service.ClientRiskManager.MyNoSql", "src\Service.ClientRiskManager.MyNoSql\Service.ClientRiskManager.MyNoSql.csproj", "{5AD3103B-CE34-4D4C-8AE8-28EAD3E22784}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service.ClientRiskManager.ServiceBus", "src\Service.ClientRiskManager.ServiceBus\Service.ClientRiskManager.ServiceBus.csproj", "{C1FD2892-16CC-4803-9EC7-575EB60368DD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -66,6 +70,14 @@ Global
 		{5CFE74A4-CDBB-4E2D-9C0A-9CEF20DCB38B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5CFE74A4-CDBB-4E2D-9C0A-9CEF20DCB38B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5CFE74A4-CDBB-4E2D-9C0A-9CEF20DCB38B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AD3103B-CE34-4D4C-8AE8-28EAD3E22784}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AD3103B-CE34-4D4C-8AE8-28EAD3E22784}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AD3103B-CE34-4D4C-8AE8-28EAD3E22784}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AD3103B-CE34-4D4C-8AE8-28EAD3E22784}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1FD2892-16CC-4803-9EC7-575EB60368DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1FD2892-16CC-4803-9EC7-575EB60368DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1FD2892-16CC-4803-9EC7-575EB60368DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1FD2892-16CC-4803-9EC7-575EB60368DD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -77,6 +89,8 @@ Global
 		{B64315EC-2356-4586-8A89-111D88A942B8} = {EB832FF1-4E01-40ED-BAC4-5ECF70F5C108}
 		{FF868A2B-24FA-42B0-8400-95EDEE689678} = {D11EB899-A148-4C9B-B340-B907EF71C4A2}
 		{5CFE74A4-CDBB-4E2D-9C0A-9CEF20DCB38B} = {446301A0-97F2-4921-BA0B-32B76039C73B}
+		{5AD3103B-CE34-4D4C-8AE8-28EAD3E22784} = {446301A0-97F2-4921-BA0B-32B76039C73B}
+		{C1FD2892-16CC-4803-9EC7-575EB60368DD} = {446301A0-97F2-4921-BA0B-32B76039C73B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6BF00C9D-AD55-40F2-8FE3-E5C3559B3E26}

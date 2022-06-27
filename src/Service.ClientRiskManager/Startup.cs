@@ -62,6 +62,7 @@ namespace Service.ClientRiskManager
             builder.RegisterModule<SettingsModule>();
             builder.RegisterModule<ServiceModule>();
             builder.RegisterModule<MyNoSqlModule>();
+            builder.RegisterModule<ServiceBusModule>();
         }
     }
 }

@@ -18,6 +18,7 @@
     <PackageReference Include="MyJetWallet.Sdk.Service" Version="2.2.4" />
     <PackageReference Include="MyJetWallet.Sdk.ServiceBus" Version="2.2.4" />
     <PackageReference Include="MyJetWallet.Service.Bitgo.DepositDetector.Client" Version="2.3.0" />
+    <PackageReference Include="MyJetWallet.Service.Circle.Wallets.Client" Version="2.5.6" />
     <PackageReference Include="MyJetWallet.Service.IndexPrices.Client" Version="1.7.3" />
     <PackageReference Include="MyJetWallet.Service.Circle.Webhooks.Client" Version="2.3.2" />
     <PackageReference Include="MyJetWallet.Service.ClientProfile.Client" Version="1.3.1" />
@@ -32,6 +33,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Service.ClientRiskManager.Domain\Service.ClientRiskManager.Domain.csproj" />
     <ProjectReference Include="..\Service.ClientRiskManager.Grpc\Service.ClientRiskManager.Grpc.csproj" />
+    <ProjectReference Include="..\Service.ClientRiskManager.MyNoSql\Service.ClientRiskManager.MyNoSql.csproj" />
+    <ProjectReference Include="..\Service.ClientRiskManager.ServiceBus\Service.ClientRiskManager.ServiceBus.csproj" />
   </ItemGroup>
 
   <ItemGroup>
