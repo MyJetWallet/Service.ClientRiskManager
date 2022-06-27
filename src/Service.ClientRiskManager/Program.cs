@@ -45,10 +45,16 @@ namespace Service.ClientRiskManager
 
             try
             {
-                foreach (var item in ErrorCodesAsFraud.ErrorCodes)
+                foreach (var item in CardErrorCodesAsFraud.ErrorCodes)
                 {
-                    logger.LogInformation($"ErrorCodesAsFraud: {item}");
+                    logger.LogInformation($"CardErrorCodesAsFraud: {item}");
                 }
+
+                foreach (var item in PaymentErrorCodesAsFraud.ErrorCodes)
+                {
+                    logger.LogInformation($"PaymentErrorCodesAsFraud: {item}");
+                }
+
                 logger.LogInformation("Application is being started");
 
                 CreateHostBuilder(loggerFactory, args).Build().Run();

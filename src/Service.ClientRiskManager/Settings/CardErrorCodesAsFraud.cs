@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Service.ClientRiskManager.Settings
 {
-    public static class ErrorCodesAsFraud
+    public static class CardErrorCodesAsFraud
     {
         private static HashSet<MyJetWallet.Circle.Models.Cards.CardVerificationError> _errorCodes = null;
         public static HashSet<MyJetWallet.Circle.Models.Cards.CardVerificationError> ErrorCodes

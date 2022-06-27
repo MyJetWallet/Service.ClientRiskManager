@@ -51,7 +51,7 @@ namespace Service.ClientRiskManager.Subscribers
             try
             {
                 if (!signal.ErrorCode.HasValue &&
-                    !ErrorCodesAsFraud.ErrorCodes.Contains(signal.ErrorCode.Value))
+                    !CardErrorCodesAsFraud.ErrorCodes.Contains(signal.ErrorCode.Value))
                     return;
 
                 await _locker.WaitAsync();

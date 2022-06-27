@@ -35,5 +35,8 @@ namespace Service.ClientRiskManager.Settings
         [YamlProperty("ClientRiskManager.CardErrorCodesAsFraud")]
         public string CardErrorCodesAsFraud { get; set; }
 
+        [YamlProperty("ClientRiskManager.PaymetErrorCodesAsFraud")]
+        public string PaymetErrorCodesAsFraud { get; set; }
+
     }
 }

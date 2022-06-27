@@ -8,6 +8,7 @@ using Service.ClientProfile.Grpc;
 using Service.ClientRiskManager.Domain.Models.FraudDetection;
 using Service.ClientRiskManager.MyNoSql.FraudDetection;
 using Service.ClientRiskManager.ServiceBus.FraudDetection;
+using Service.ClientRiskManager.Settings;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -46,6 +47,7 @@ namespace Service.ClientRiskManager.Subscribers
             try
             {
                 if (!signal.PaymentInfo.ErrorCode.HasValue &&
+                    !PaymentErrorCodesAsFraud.ErrorCodes.Contains(signal.PaymentInfo.ErrorCode.Value) &&
                     signal.PaymentInfo.ErrorCode != MyJetWallet.Circle.Models.Payments.PaymentErrorCode.ThreeDSecureFailure &&
                     signal.PaymentInfo.ErrorCode != MyJetWallet.Circle.Models.Payments.PaymentErrorCode.ThreeDSecureActionExpired)
                     return;
