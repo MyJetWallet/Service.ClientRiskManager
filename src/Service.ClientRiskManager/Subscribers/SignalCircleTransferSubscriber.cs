@@ -47,9 +47,7 @@ namespace Service.ClientRiskManager.Subscribers
             try
             {
                 if (!signal.PaymentInfo.ErrorCode.HasValue &&
-                    !PaymentErrorCodesAsFraud.ErrorCodes.Contains(signal.PaymentInfo.ErrorCode.Value) &&
-                    signal.PaymentInfo.ErrorCode != MyJetWallet.Circle.Models.Payments.PaymentErrorCode.ThreeDSecureFailure &&
-                    signal.PaymentInfo.ErrorCode != MyJetWallet.Circle.Models.Payments.PaymentErrorCode.ThreeDSecureActionExpired)
+                    !PaymentErrorCodesAsFraud.ErrorCodes.Contains(signal.PaymentInfo.ErrorCode.Value))
                     return;
 
                 await _locker.WaitAsync();
