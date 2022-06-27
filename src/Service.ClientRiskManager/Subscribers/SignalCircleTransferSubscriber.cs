@@ -68,7 +68,7 @@ namespace Service.ClientRiskManager.Subscribers
 
                 fraud.ClietFraud.Attempts3dsFailedCount++;
 
-                if (fraud.ClietFraud.Attempts3dsFailedCount >= 2)
+                if (fraud.ClietFraud.Attempts3dsFailedCount >= 3)
                 {
                     await _publisher.PublishAsync(new FraudDetectedMessage
                     {

@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using MyJetWallet.Sdk.Service;
 using MySettingsReader;
 using Service.ClientRiskManager.Settings;
+using System.Linq;
 
 namespace Service.ClientRiskManager
 {
@@ -44,6 +45,10 @@ namespace Service.ClientRiskManager
 
             try
             {
+                foreach (var item in ErrorCodesAsFraud.ErrorCodes)
+                {
+                    logger.LogInformation($"ErrorCodesAsFraud: {item}");
+                }
                 logger.LogInformation("Application is being started");
 
                 CreateHostBuilder(loggerFactory, args).Build().Run();

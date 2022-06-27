@@ -9,6 +9,7 @@ using Service.ClientProfile.Grpc;
 using Service.ClientRiskManager.Domain.Models.FraudDetection;
 using Service.ClientRiskManager.MyNoSql.FraudDetection;
 using Service.ClientRiskManager.ServiceBus.FraudDetection;
+using Service.ClientRiskManager.Settings;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -50,7 +51,7 @@ namespace Service.ClientRiskManager.Subscribers
             try
             {
                 if (!signal.ErrorCode.HasValue &&
-                    signal.ErrorCode != MyJetWallet.Circle.Models.Cards.CardVerificationError.VerificationFraudDetected)
+                    !ErrorCodesAsFraud.ErrorCodes.Contains(signal.ErrorCode.Value))
                     return;
 
                 await _locker.WaitAsync();

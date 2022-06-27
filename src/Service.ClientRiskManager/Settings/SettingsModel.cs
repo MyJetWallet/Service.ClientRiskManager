@@ -32,5 +32,8 @@ namespace Service.ClientRiskManager.Settings
         [YamlProperty("ClientRiskManager.DisableCircleFraudDetection")]
         public bool DisableCircleFraudDetection { get; set; } = false;
 
+        [YamlProperty("ClientRiskManager.CardErrorCodesAsFraud")]
+        public string CardErrorCodesAsFraud { get; set; }
+
     }
 }
