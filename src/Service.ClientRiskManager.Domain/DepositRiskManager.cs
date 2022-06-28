@@ -83,7 +83,14 @@ public class DepositRiskManager : IDepositRiskManager
             _logger.LogError(ex, "Unable to process CircleCard deposit due to {error}", ex.Message);
         }
     }
-
+    
+    private class ClientTemporaryDeposits
+    {
+        public string BrokerId { get; set; }
+        public string ClientId { get; set; }
+        public List<CircleClientDeposit> Deposits { get; set; }
+    }
+    
     public async Task RecalculateAllAsync()
     {
         try
@@ -92,31 +99,35 @@ public class DepositRiskManager : IDepositRiskManager
 
             var currDate = DateTime.UtcNow;
             var lastId = 0L;
-            var batchSize = 10000;
+            var batchSize = 200;
+            var deposits = new List<Deposit>();
+            while (true)
+            {
+                var depositsResponse = await _bitgoDepositService
+                    .GetDepositsByPeriod(new GetDepositsByPeriodRequest
+                    {
+                        LastId = lastId,
+                        BatchSize = batchSize,
+                        ClientId = null,
+                        WalletId = null,
+                        Integration = CircleCard,
+                        OnlySuccessfully = true,
+                        FromDate = currDate.AddMonths(-1),
+                        ToDate = currDate
+                    });
 
-            var depositsResponse = await _bitgoDepositService
-                .GetDepositsByPeriod(new GetDepositsByPeriodRequest
+                lastId = depositsResponse.IdForNextQuery;
+                if (!depositsResponse.Success || depositsResponse.DepositCollection == null ||
+                    depositsResponse.DepositCollection.Count == 0)
                 {
-                    LastId = lastId,
-                    BatchSize = batchSize,
-                    ClientId = null,
-                    WalletId = null,
-                    Integration = CircleCard,
-                    OnlySuccessfully = true,
-                    FromDate = currDate.AddMonths(-1),
-                    ToDate = currDate
-                });
+                    break;
+                }
 
-            // lastId = depositsResponse.IdForNextQuery;
-            // if (!depositsResponse.Success || depositsResponse.DepositCollection == null ||
-            //     depositsResponse.DepositCollection.Count == 0)
-            // {
-            //     ;
-            // }
-
-            var depositsFromDb = depositsResponse?.DepositCollection ?? new List<Deposit>();
-
-            var depositsFromDbByClient = depositsFromDb
+                var depositsFromDb = depositsResponse?.DepositCollection ?? new List<Deposit>();
+                deposits.AddRange(depositsFromDb);
+            }
+            
+            var depositsFromDbByClient = deposits
                 .GroupBy(e => new { e.BrokerId, e.ClientId },
                     (k, c) => new ClientRiskNoSqlEntity
                     {
@@ -141,7 +152,7 @@ public class DepositRiskManager : IDepositRiskManager
                         MinDepositAmountInUsd = 0
                     })
                 .ToList();
-
+            
             foreach (var deposit in depositsFromDbByClient)
             {
                 deposit.RecalcDeposits(currDate);
