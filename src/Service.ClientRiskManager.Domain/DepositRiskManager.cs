@@ -84,13 +84,6 @@ public class DepositRiskManager : IDepositRiskManager
         }
     }
     
-    private class ClientTemporaryDeposits
-    {
-        public string BrokerId { get; set; }
-        public string ClientId { get; set; }
-        public List<CircleClientDeposit> Deposits { get; set; }
-    }
-    
     public async Task RecalculateAllAsync()
     {
         try
