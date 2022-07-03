@@ -158,4 +158,92 @@ public class DepositRiskManager : IDepositRiskManager
             _logger.LogError(ex, "Unable to recalculate CircleCard client deposit due to {error}", ex.Message);
         }
     }
+    
+    public async Task <ClientRiskNoSqlEntity> GetAndRecalculateClientLastMonthRawAsync(string clientId, 
+        string brokerId)
+    {
+        try
+        {
+            _logger.LogInformation("Recalculating CircleCard client deposit {clientId}", clientId);
+
+            var currDate = DateTime.UtcNow;
+            var lastId = 0L;
+            var batchSize = 200;
+            var deposits = new List<Deposit>();
+            while (true)
+            {
+                var depositsResponse = await _bitgoDepositService
+                    .GetDepositsByPeriod(new GetDepositsByPeriodRequest
+                    {
+                        LastId = lastId,
+                        BatchSize = batchSize,
+                        ClientId = clientId,
+                        WalletId = null,
+                        Integration = CircleCard,
+                        OnlySuccessfully = true,
+                        FromDate = currDate.AddMonths(-1),
+                        ToDate = currDate,
+                    });
+
+                lastId = depositsResponse.IdForNextQuery;
+                if (!depositsResponse.Success || depositsResponse.DepositCollection == null ||
+                    depositsResponse.DepositCollection.Count == 0)
+                {
+                    break;
+                }
+
+                var depositsFromDb = depositsResponse?.DepositCollection ?? new List<Deposit>();
+                deposits.AddRange(depositsFromDb);
+            }
+
+            var depositsFromDbByClient = deposits
+                .Where(e => e.BrokerId == brokerId)
+                .GroupBy(e => e.ClientId,
+                    (k, c) => new ClientRiskNoSqlEntity
+                    {
+                        PartitionKey = ClientRiskNoSqlEntity.GeneratePartitionKey(brokerId),
+                        RowKey = ClientRiskNoSqlEntity.GenerateRowKey(k),
+                        // TimeStamp = null,
+                        // Expires = null,
+                        CardDeposits = c.Select(cs => new CircleClientDeposit
+                        {
+                            Date = cs.EventDate,
+                            Balance = cs.Amount,
+                            BalanceInUsd = cs.Amount * cs.AssetIndexPrice,
+                            AssetSymbol = cs.AssetSymbol
+                        }).ToList(),
+                        CardDepositsSummary = new CircleClientDepositSummary
+                        {
+                            DepositLast30DaysInUsd = 0,
+                            DepositLast14DaysInUsd = 0,
+                            DepositLast7DaysInUsd = 0,
+                            DepositLast1DaysInUsd = 0
+                        },
+                        MinDepositAmountInUsd = 0
+                    })
+                .FirstOrDefault();
+
+            // return new GetClientWithdrawalLimitsResponse
+            // {
+            //     Success = true,
+            //     ErrorMessage = String.Empty,
+            //     CardDepositsSummary = new CircleClientDepositSummary
+            //     {
+            //         DepositLast30DaysInUsd = 0m,
+            //         DepositLast14DaysInUsd = 0m,
+            //         DepositLast7DaysInUsd = 0m,
+            //         DepositLast1DaysInUsd = 0m
+            //     }
+            // };
+            depositsFromDbByClient?.RecalcDeposits(currDate);
+            await _writer.InsertOrReplaceAsync(depositsFromDbByClient);
+            return depositsFromDbByClient;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unable to recalculate CircleCard client {clientId} deposit due to {error}", 
+                clientId, ex.Message);
+            throw;
+        }
+    }
 }
