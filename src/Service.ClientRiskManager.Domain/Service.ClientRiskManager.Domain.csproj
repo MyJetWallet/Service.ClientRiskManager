@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MyJetWallet.Service.Bitgo.DepositDetector.Client" Version="2.3.2" />
+    <PackageReference Include="MyJetWallet.Service.Bitgo.DepositDetector.Client" Version="2.3.5" />
   </ItemGroup>
 
   <ItemGroup>
