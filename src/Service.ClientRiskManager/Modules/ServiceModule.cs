@@ -27,9 +27,6 @@ namespace Service.ClientRiskManager.Modules
                 .SingleInstance();
 
             builder.RegisterBitgoDepositServiceClient(Program.Settings.BitgoDepositServiceGrpcUrl);
-
         }
-        
-
     }
 }

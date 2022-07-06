@@ -42,4 +42,9 @@ public class ClientLimitsRiskServiceCachedClient : IClientLimitsRiskService
 
         return await _limitsRiskService.GetClientWithdrawalLimitsAsync(request);
     }
+
+    public Task SetClientDepositLimitsAsync(SetClientDepositLimitsRequest request)
+    {
+        throw new NotImplementedException();
+    }
 }

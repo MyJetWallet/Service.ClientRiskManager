@@ -8,6 +8,8 @@ using MyNoSqlServer.Abstractions;
 using Service.Bitgo.DepositDetector.Domain.Models;
 using Service.Bitgo.DepositDetector.Grpc;
 using Service.Bitgo.DepositDetector.Grpc.Models;
+using Service.Circle.Wallets.Domain.Models;
+using Service.Circle.Wallets.Grpc;
 using Service.ClientRiskManager.Domain.Models;
 
 namespace Service.ClientRiskManager.Domain;
@@ -19,25 +21,30 @@ public class DepositRiskManager : IDepositRiskManager
     private readonly ILogger<DepositRiskManager> _logger;
     private readonly IMyNoSqlServerDataWriter<ClientRiskNoSqlEntity> _writer;
     private readonly IBitgoDepositService _bitgoDepositService;
+    private readonly ICircleCardsService _circleCardsService;
+
 
     public DepositRiskManager(ILogger<DepositRiskManager> logger,
         IMyNoSqlServerDataWriter<ClientRiskNoSqlEntity> writer,
-        IBitgoDepositService bitgoDepositService)
+        IBitgoDepositService bitgoDepositService, 
+        ICircleCardsService circleCardsService)
     {
         _logger = logger;
         _writer = writer;
         _bitgoDepositService = bitgoDepositService;
+        _circleCardsService = circleCardsService;
     }
 
     public async Task ApplyNewDepositAsync(Deposit message)
     {
         if (message.Status == DepositStatus.Processed && message.Integration == CircleCard)
         {
-            await UpsertDeposit(message);
+            var paymentDetails = (await _circleCardsService.GetCardPaymentDetails()).Data;
+            await UpsertDeposit(message, paymentDetails);
         }
     }
 
-    private async Task UpsertDeposit(Deposit deposit)
+    private async Task UpsertDeposit(Deposit deposit,  CircleCardPaymentDetails paymentDetails)
     {
         try
         {
@@ -62,7 +69,8 @@ public class DepositRiskManager : IDepositRiskManager
                 //var currDate = DateTime.UtcNow;
                 cachedEntity.CleanupDepositsLess30Days(deposit.EventDate);
                 cachedEntity.RecalcDeposits(deposit.EventDate);
-
+                cachedEntity.RecalcDepositsLimitsProgress(paymentDetails);
+                
                 await _writer.InsertOrReplaceAsync(cachedEntity);
             }
             else
@@ -74,7 +82,9 @@ public class DepositRiskManager : IDepositRiskManager
                         Balance = deposit.Amount,
                         AssetSymbol = deposit.AssetSymbol,
                         BalanceInUsd = newDepositInUsd
-                    });
+                    },
+                    paymentDetails);
+                
                 await _writer.InsertOrReplaceAsync(entity);
             }
         }
@@ -119,6 +129,7 @@ public class DepositRiskManager : IDepositRiskManager
                 var depositsFromDb = depositsResponse?.DepositCollection ?? new List<Deposit>();
                 deposits.AddRange(depositsFromDb);
             }
+            var paymentDetails = (await _circleCardsService.GetCardPaymentDetails()).Data;
             
             var depositsFromDbByClient = deposits
                 .GroupBy(e => new { e.BrokerId, e.ClientId },
@@ -140,15 +151,15 @@ public class DepositRiskManager : IDepositRiskManager
                             DepositLast30DaysInUsd = 0,
                             DepositLast14DaysInUsd = 0,
                             DepositLast7DaysInUsd = 0,
-                            DepositLast1DaysInUsd = 0
-                        },
-                        MinDepositAmountInUsd = 0
+                            DepositLast1DaysInUsd = 0,
+                        }
                     })
                 .ToList();
             
             foreach (var deposit in depositsFromDbByClient)
             {
                 deposit.RecalcDeposits(currDate);
+                deposit.RecalcDepositsLimitsProgress(paymentDetails);
             }
 
             await _writer.CleanAndBulkInsertAsync(depositsFromDbByClient);
@@ -218,24 +229,15 @@ public class DepositRiskManager : IDepositRiskManager
                             DepositLast14DaysInUsd = 0,
                             DepositLast7DaysInUsd = 0,
                             DepositLast1DaysInUsd = 0
-                        },
-                        MinDepositAmountInUsd = 0
+                        }
                     })
                 .FirstOrDefault();
+            
+            var paymentDetails = (await _circleCardsService.GetCardPaymentDetails()).Data;
 
-            // return new GetClientWithdrawalLimitsResponse
-            // {
-            //     Success = true,
-            //     ErrorMessage = String.Empty,
-            //     CardDepositsSummary = new CircleClientDepositSummary
-            //     {
-            //         DepositLast30DaysInUsd = 0m,
-            //         DepositLast14DaysInUsd = 0m,
-            //         DepositLast7DaysInUsd = 0m,
-            //         DepositLast1DaysInUsd = 0m
-            //     }
-            // };
             depositsFromDbByClient?.RecalcDeposits(currDate);
+            depositsFromDbByClient?.RecalcDepositsLimitsProgress(paymentDetails);
+
             await _writer.InsertOrReplaceAsync(depositsFromDbByClient);
             return depositsFromDbByClient;
         }

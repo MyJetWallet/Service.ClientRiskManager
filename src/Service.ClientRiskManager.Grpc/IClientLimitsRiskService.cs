@@ -8,6 +8,13 @@ namespace Service.ClientRiskManager.Grpc
     public interface IClientLimitsRiskService
     {
         [OperationContract]
-        Task<GetClientWithdrawalLimitsResponse> GetClientWithdrawalLimitsAsync(GetClientWithdrawalLimitsRequest request);
+        Task<GetClientWithdrawalLimitsResponse> GetClientWithdrawalLimitsAsync(
+            GetClientWithdrawalLimitsRequest request);
+        
+        [OperationContract]
+        Task SetClientDepositLimitsAsync(
+            SetClientDepositLimitsRequest request);
+        
+
     }
 }

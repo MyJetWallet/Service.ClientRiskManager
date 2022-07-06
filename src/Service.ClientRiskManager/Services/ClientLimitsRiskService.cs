@@ -27,7 +27,7 @@ namespace Service.ClientRiskManager.Services
 
         public async Task<GetClientWithdrawalLimitsResponse> GetClientWithdrawalLimitsAsync(GetClientWithdrawalLimitsRequest request)
         {
-            using var activity = MyTelemetry.StartActivity($"Handle {nameof(SignalCircleChargeback)}");
+            using var activity = MyTelemetry.StartActivity($"Handle {nameof(GetClientWithdrawalLimitsAsync)}");
 
             _logger.LogInformation("Processing GetClientWithdrawalLimitsAsync: {context}", request.ToJson());
 
@@ -45,13 +45,41 @@ namespace Service.ClientRiskManager.Services
                         DepositLast30DaysInUsd = circleCardDeposit.CardDepositsSummary.DepositLast30DaysInUsd,
                         DepositLast14DaysInUsd = circleCardDeposit.CardDepositsSummary.DepositLast14DaysInUsd,
                         DepositLast7DaysInUsd = circleCardDeposit.CardDepositsSummary.DepositLast7DaysInUsd,
-                        DepositLast1DaysInUsd = circleCardDeposit.CardDepositsSummary.DepositLast1DaysInUsd
+                        DepositLast1DaysInUsd = circleCardDeposit.CardDepositsSummary.DepositLast1DaysInUsd,
+                        Deposit30DaysLimit = circleCardDeposit.CardDepositsSummary.Deposit30DaysLimit,
+                        Deposit7DaysLimit = circleCardDeposit.CardDepositsSummary.Deposit7DaysLimit,
+                        Deposit1DaysLimit = circleCardDeposit.CardDepositsSummary.Deposit1DaysLimit,
+                        Deposit30DaysState = circleCardDeposit.CardDepositsSummary.Deposit30DaysState,
+                        Deposit7DaysState = circleCardDeposit.CardDepositsSummary.Deposit7DaysState,
+                        Deposit1DaysState = circleCardDeposit.CardDepositsSummary.Deposit1DaysState,
+                        BarInterval = circleCardDeposit.CardDepositsSummary.BarInterval,
+                        BarProgres = circleCardDeposit.CardDepositsSummary.BarProgres,
+                        LeftHours = circleCardDeposit.CardDepositsSummary.LeftHours,
                     }
                 };
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error processing GetClientWithdrawalLimitsAsync {@context}", request.ToJson());
+                ex.FailActivity();
+                throw;
+            }
+        }
+
+        public async Task SetClientDepositLimitsAsync(SetClientDepositLimitsRequest request)
+        {
+            using var activity = MyTelemetry.StartActivity($"Handle {nameof(ClientLimitsRiskService)}");
+
+            _logger.LogInformation("Processing SetClientDepositLimitsAsync: {context}", request.ToJson());
+            try
+            {
+                var newLimits = request.PaymentDetails;
+                await _depositRiskManager.RecalculateAllAsync();
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing SetClientDepositLimitsAsync {@context}", request.ToJson());
                 ex.FailActivity();
                 throw;
             }
