@@ -101,7 +101,7 @@ namespace Service.ClientRiskManager.Tests
             Assert.IsTrue(cardDepositsSummary.Deposit30DaysState == LimitState.None);
             
             Assert.IsTrue(cardDepositsSummary.BarInterval == BarState.Day7);
-            Assert.IsTrue(cardDepositsSummary.BarProgres == 50);
+            Assert.IsTrue(cardDepositsSummary.BarProgres == 67);
             Assert.IsTrue(cardDepositsSummary.LeftHours == 0);
         }
         
