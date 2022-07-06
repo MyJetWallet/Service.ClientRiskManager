@@ -228,18 +228,37 @@ public class DepositRiskManager : IDepositRiskManager
                             DepositLast30DaysInUsd = 0,
                             DepositLast14DaysInUsd = 0,
                             DepositLast7DaysInUsd = 0,
-                            DepositLast1DaysInUsd = 0
+                            DepositLast1DaysInUsd = 0,
+                            Deposit30DaysLimit = 0,
+                            Deposit7DaysLimit = 0,
+                            Deposit1DaysLimit = 0,
+                            Deposit30DaysState = LimitState.None,
+                            Deposit7DaysState = LimitState.None,
+                            Deposit1DaysState = LimitState.None,
+                            BarInterval = BarState.Day1,
+                            BarProgres = 0,
+                            LeftHours = 0,
+
                         }
                     })
                 .FirstOrDefault();
-            
+
+            var depositsToCalc = depositsFromDbByClient ?? new ClientRiskNoSqlEntity
+            {
+                PartitionKey = ClientRiskNoSqlEntity.GeneratePartitionKey(brokerId),
+                RowKey = ClientRiskNoSqlEntity.GenerateRowKey(clientId),
+                //TimeStamp = null,
+                //Expires = null,
+                CardDeposits = new List<CircleClientDeposit>(),
+                CardDepositsSummary = new CircleClientDepositSummary()
+            };
             var paymentDetails = (await _circleCardsService.GetCardPaymentDetails()).Data;
 
-            depositsFromDbByClient?.RecalcDeposits(currDate);
-            depositsFromDbByClient?.RecalcDepositsLimitsProgress(paymentDetails);
+            depositsToCalc.RecalcDeposits(currDate);
+            depositsToCalc.RecalcDepositsLimitsProgress(paymentDetails);
 
-            await _writer.InsertOrReplaceAsync(depositsFromDbByClient);
-            return depositsFromDbByClient;
+            await _writer.InsertOrReplaceAsync(depositsToCalc);
+            return depositsToCalc;
         }
         catch (Exception ex)
         {
