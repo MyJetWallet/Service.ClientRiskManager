@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MyNoSqlServer.Abstractions;
 using Service.Circle.Wallets.Domain.Models;
 
@@ -86,65 +87,55 @@ namespace Service.ClientRiskManager.Domain.Models
 
         public void RecalcDepositsLimitsProgress(CircleCardPaymentDetails paymentDetails)
         {
-            CardDepositsSummary.Deposit30DaysLimit = paymentDetails.Day30Limit;
-            CardDepositsSummary.Deposit7DaysLimit = paymentDetails.Day7Limit;
             CardDepositsSummary.Deposit1DaysLimit = paymentDetails.Day1Limit;
-            CardDepositsSummary.Deposit1DaysState = LimitState.None;
-            CardDepositsSummary.Deposit7DaysState = LimitState.None;
-            CardDepositsSummary.Deposit30DaysState = LimitState.None;
+            CardDepositsSummary.Deposit7DaysLimit = paymentDetails.Day7Limit;
+            CardDepositsSummary.Deposit30DaysLimit = paymentDetails.Day30Limit;
 
-            //TODO: Add math engine
-            // List<Periodic> freeAmounts = new List<Periodic>()
-            // {
-            //     new Periodic
-            //     {
-            //         Amount = 0,
-            //         Period = PeriodType.Day1
-            //     },
-            //     new Periodic()
-            //     {
-            //         Amount = 0,
-            //         Period = PeriodType.Day7
-            //     },
-            //     new Periodic()
-            //     {
-            //         Amount = 0,
-            //         Period = PeriodType.Day30
-            //     },
-            // };
-            // var freeAmount1Day = CardDepositsSummary.Deposit1DaysLimit - CardDepositsSummary.DepositLast1DaysInUsd;
-            // if (freeAmount1Day <= 0)
-            // {
-            //     CardDepositsSummary.Deposit1DaysState = LimitState.Block;
-            //     freeAmount1Day = 0m;
-            // }
-            // freeAmounts.Add(1,freeAmount1Day);
-            // var freeAmount7Day = CardDepositsSummary.Deposit7DaysLimit - CardDepositsSummary.DepositLast7DaysInUsd;
-            // if (freeAmount7Day <= 0)
-            // {
-            //     CardDepositsSummary.Deposit7DaysState = LimitState.Block;
-            //     freeAmount7Day = 0m;
-            // }
-            // freeAmounts.Add(7, freeAmount7Day);
-            // var freeAmount30Day = CardDepositsSummary.Deposit30DaysLimit - CardDepositsSummary.DepositLast30DaysInUsd;
-            // if (freeAmount30Day <= 0)
-            // {
-            //     CardDepositsSummary.Deposit30DaysState = LimitState.Block;
-            //     freeAmount30Day = 0m;
-            // }
-            //
-            // freeAmounts.Add(30, freeAmount30Day);
-            // var orderByDescending = freeAmounts.OrderBy(e => e.Value);
-            // var minValue = orderByDescending.First();
-            //
+            var day1 = new DayLimit(CardDepositsSummary.DepositLast1DaysInUsd,
+                CardDepositsSummary.Deposit1DaysLimit, BarState.Day1);
+            var day7 = new DayLimit(CardDepositsSummary.DepositLast7DaysInUsd,
+                CardDepositsSummary.Deposit7DaysLimit, BarState.Day7);
+            var day30 = new DayLimit(CardDepositsSummary.DepositLast30DaysInUsd,
+                CardDepositsSummary.Deposit30DaysLimit, BarState.Day30);
 
-            //CardDepositsSummary.Deposit30DaysState 
-            //CardDepositsSummary.Deposit7DaysState 
-            // CardDepositsSummary.Deposit1DaysState 
-
-            CardDepositsSummary.BarInterval = BarState.Day1;
-            CardDepositsSummary.BarProgres = 0;
+            DayLimit[] dayLimits = { day1, day7, day30 };
+            // Find active DayXXXState
+            var dayActive = dayLimits
+                .Where(e => e.State != LimitState.Block)
+                .OrderBy(e => e.AvailableAmount)
+                .First();
+            
+            dayActive.State = LimitState.Active;
+            
+            CardDepositsSummary.BarInterval = dayActive.Day;
+            CardDepositsSummary.BarProgres = dayActive.CalcProgressBar();
             CardDepositsSummary.LeftHours = 0;
         }
     }
+
+    public class DayLimit
+    {
+        public readonly decimal Amount;
+        public readonly decimal Limit;
+        public readonly BarState Day;
+        public LimitState State { get; set; }
+        public decimal AvailableAmount => Limit <= Amount ? 0m : Limit - Amount;
+
+        public int CalcProgressBar()
+        {
+            if (Limit == 0 || AvailableAmount == 0)
+                return 0; 
+            
+            return Convert.ToInt32(Amount * 100 / Limit);
+        }
+
+        public DayLimit(decimal amount, decimal limit, BarState day)
+        {
+            Amount = amount;
+            Limit = limit;
+            Day = day;
+            State = Limit <= Amount ? LimitState.Block : LimitState.None; 
+        }
+    }
+
 }
