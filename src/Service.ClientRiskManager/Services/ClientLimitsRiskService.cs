@@ -36,7 +36,7 @@ namespace Service.ClientRiskManager.Services
                 var circleCardDeposit = await _depositRiskManager.GetAndRecalculateClientLastMonthRawAsync(
                     request.ClientId, request.BrokerId);
 
-                return new GetClientWithdrawalLimitsResponse
+                var response = new GetClientWithdrawalLimitsResponse
                 {
                     Success = true,
                     ErrorMessage = String.Empty,
@@ -57,6 +57,7 @@ namespace Service.ClientRiskManager.Services
                         LeftHours = circleCardDeposit.CardDepositsSummary.LeftHours,
                     }
                 };
+                return response;
             }
             catch (Exception ex)
             {

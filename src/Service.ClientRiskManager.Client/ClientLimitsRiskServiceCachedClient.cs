@@ -35,7 +35,19 @@ public class ClientLimitsRiskServiceCachedClient : IClientLimitsRiskService
                     DepositLast30DaysInUsd = noSqlEntity.CardDepositsSummary.DepositLast30DaysInUsd,
                     DepositLast14DaysInUsd = noSqlEntity.CardDepositsSummary.DepositLast14DaysInUsd,
                     DepositLast7DaysInUsd = noSqlEntity.CardDepositsSummary.DepositLast7DaysInUsd,
-                    DepositLast1DaysInUsd = noSqlEntity.CardDepositsSummary.DepositLast1DaysInUsd
+                    DepositLast1DaysInUsd = noSqlEntity.CardDepositsSummary.DepositLast1DaysInUsd,
+                    Deposit30DaysLimit = noSqlEntity.CardDepositsSummary.Deposit30DaysLimit,
+                    Deposit7DaysLimit = noSqlEntity.CardDepositsSummary.Deposit7DaysLimit,
+                    Deposit1DaysLimit = noSqlEntity.CardDepositsSummary.Deposit1DaysLimit,
+                    Deposit30DaysState = noSqlEntity.CardDepositsSummary.Deposit30DaysState,
+                    Deposit7DaysState = noSqlEntity.CardDepositsSummary.Deposit7DaysState,
+                    Deposit1DaysState = noSqlEntity.CardDepositsSummary.Deposit1DaysState,
+                    BarInterval = noSqlEntity.CardDepositsSummary.BarInterval,
+                    BarProgres = noSqlEntity.CardDepositsSummary.BarProgres,
+                    LeftHours = noSqlEntity.CardDepositsSummary.LeftHours,
+                    LastDeposit30DaysLeftHours = noSqlEntity.CardDepositsSummary.LastDeposit30DaysLeftHours,
+                    LastDeposit7DaysLeftHours = noSqlEntity.CardDepositsSummary.LastDeposit7DaysLeftHours,
+                    LastDeposit1DaysLeftHours = noSqlEntity.CardDepositsSummary.LastDeposit1DaysLeftHours,
                 }
             };
         }

@@ -150,13 +150,7 @@ public class DepositRiskManager : IDepositRiskManager
                             BalanceInUsd = cs.Amount * cs.AssetIndexPrice,
                             AssetSymbol = cs.AssetSymbol
                         }).ToList(),
-                        CardDepositsSummary = new CircleClientDepositSummary
-                        {
-                            DepositLast30DaysInUsd = 0,
-                            DepositLast14DaysInUsd = 0,
-                            DepositLast7DaysInUsd = 0,
-                            DepositLast1DaysInUsd = 0,
-                        }
+                        CardDepositsSummary = new CircleClientDepositSummary()
                     })
                 .ToList();
             
@@ -227,22 +221,7 @@ public class DepositRiskManager : IDepositRiskManager
                             BalanceInUsd = cs.Amount * cs.AssetIndexPrice,
                             AssetSymbol = cs.AssetSymbol
                         }).ToList(),
-                        CardDepositsSummary = new CircleClientDepositSummary
-                        {
-                            // DepositLast30DaysInUsd = 0,
-                            // DepositLast14DaysInUsd = 0,
-                            // DepositLast7DaysInUsd = 0,
-                            // DepositLast1DaysInUsd = 0,
-                            // Deposit30DaysLimit = 0,
-                            // Deposit7DaysLimit = 0,
-                            // Deposit1DaysLimit = 0,
-                            // Deposit30DaysState = LimitState.None,
-                            // Deposit7DaysState = LimitState.None,
-                            // Deposit1DaysState = LimitState.None,
-                            // BarInterval = BarState.Day1,
-                            // BarProgres = 0,
-                            // LeftHours = 0,
-                        }
+                        CardDepositsSummary = new CircleClientDepositSummary()
                     })
                 .FirstOrDefault();
 
