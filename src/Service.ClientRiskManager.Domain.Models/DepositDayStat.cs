@@ -7,6 +7,8 @@ public class DepositDayStat
     public readonly decimal Amount;
     public readonly decimal Limit;
     public readonly BarState Day;
+    public readonly int LeftHours;
+
     public LimitState State { get; set; }
     public decimal AvailableAmount => Limit <= Amount ? 0m : Limit - Amount;
 
@@ -18,11 +20,12 @@ public class DepositDayStat
         return Convert.ToInt32(Amount * 100 / Limit);
     }
 
-    public DepositDayStat(decimal amount, decimal limit, BarState day)
+    public DepositDayStat(decimal amount, decimal limit, BarState day, int leftHours)
     {
         Amount = amount;
         Limit = limit;
         Day = day;
-        State = Limit <= Amount ? LimitState.Block : LimitState.None; 
+        State = Limit <= Amount ? LimitState.Block : LimitState.None;
+        LeftHours = leftHours;
     }
 }

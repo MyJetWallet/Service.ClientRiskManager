@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.Serialization;
 
 namespace Service.ClientRiskManager.Domain.Models;
@@ -21,6 +22,10 @@ public class CircleClientDepositSummary
     [DataMember(Order = 11)] public BarState BarInterval { get; set; }
     [DataMember(Order = 12)] public int BarProgres { get; set; }
     [DataMember(Order = 13)] public int LeftHours { get; set; }
+    
+    [DataMember(Order = 14)] public int LastDeposit30DaysLeftHours { get; set; }
+    [DataMember(Order = 15)] public int LastDeposit7DaysLeftHours{ get; set; }
+    [DataMember(Order = 16)] public int LastDeposit1DaysLeftHours { get; set; }
 }
 
 public enum LimitState

@@ -25,7 +25,7 @@ namespace Service.ClientRiskManager.Tests
         {
             var depo1 = new CircleClientDeposit
             {
-                Date = _currDate,
+                Date = _currDate.AddHours(-1),
                 Balance = 1m,
                 BalanceInUsd = 500m,
                 AssetSymbol = "BTC"
@@ -42,7 +42,7 @@ namespace Service.ClientRiskManager.Tests
 
             Assert.IsTrue(cardDepositsSummary.BarInterval == BarState.Day1);
             Assert.IsTrue(cardDepositsSummary.BarProgres == 50);
-            Assert.IsTrue(cardDepositsSummary.LeftHours == 0);
+            Assert.IsTrue(cardDepositsSummary.LeftHours == 23);
         }
         
         [Test]
@@ -68,7 +68,7 @@ namespace Service.ClientRiskManager.Tests
             
             Assert.IsTrue(cardDepositsSummary.BarInterval == BarState.Day7);
             Assert.IsTrue(cardDepositsSummary.BarProgres == 33);
-            Assert.IsTrue(cardDepositsSummary.LeftHours == 0);
+            Assert.IsTrue(cardDepositsSummary.LeftHours == 168);
         }
         
         [Test]
@@ -102,7 +102,7 @@ namespace Service.ClientRiskManager.Tests
             
             Assert.IsTrue(cardDepositsSummary.BarInterval == BarState.Day7);
             Assert.IsTrue(cardDepositsSummary.BarProgres == 67);
-            Assert.IsTrue(cardDepositsSummary.LeftHours == 0);
+            Assert.IsTrue(cardDepositsSummary.LeftHours == 167);
         }
         
         [Test]
