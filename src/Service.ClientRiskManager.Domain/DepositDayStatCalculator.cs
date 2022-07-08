@@ -25,7 +25,7 @@ public static class DepositDayStatCalculator
         
         dayStat.LastDeposit30DaysLeftHours = dayStat.LastDeposit7DaysLeftHours = 
             dayStat.LastDeposit1DaysLeftHours = Convert.ToInt32((currDay - currDay.AddMonths(-1)).TotalHours);
-
+        
         foreach (var cardDeposit in deposits)
         {
             if (cardDeposit.Date >= currDay.AddMonths(-1))
@@ -74,7 +74,7 @@ public static class DepositDayStatCalculator
         dayStat.Deposit1DaysLimit = paymentDetails.Day1Limit;
         dayStat.Deposit7DaysLimit = paymentDetails.Day7Limit;
         dayStat.Deposit30DaysLimit = paymentDetails.Day30Limit;
-
+            
         var day1 = new DepositDayStat(dayStat.DepositLast1DaysInUsd,
             dayStat.Deposit1DaysLimit, BarState.Day1, dayStat.LastDeposit1DaysLeftHours);
         var day7 = new DepositDayStat(dayStat.DepositLast7DaysInUsd,
@@ -93,12 +93,10 @@ public static class DepositDayStatCalculator
         {
             dayStat.BarInterval = day30.Day;
             dayStat.BarProgres = 100;
-            dayStat.LeftHours = dayStat.LastDeposit1DaysLeftHours;
         }
         else
         {
             dayActive.State = LimitState.Active;
-            dayStat.LeftHours = dayActive.LeftHours;
             dayStat.BarInterval = dayActive.Day;
             dayStat.BarProgres = dayActive.CalcProgressBar();
         }
@@ -106,5 +104,14 @@ public static class DepositDayStatCalculator
         dayStat.Deposit1DaysState = day1.State;
         dayStat.Deposit7DaysState = day7.State;
         dayStat.Deposit30DaysState = day30.State;
+        
+        // Find leftHours from Max blocked interval
+        var leftHoursFromMaxBlockedInterval = dayLimits
+            .Where(e => e.State == LimitState.Block)
+            .OrderByDescending(e => e.LeftHours)
+            .FirstOrDefault();
+
+        var leftHours = leftHoursFromMaxBlockedInterval?.LeftHours ?? 0;
+        dayStat.LeftHours = leftHours;
     }
 }

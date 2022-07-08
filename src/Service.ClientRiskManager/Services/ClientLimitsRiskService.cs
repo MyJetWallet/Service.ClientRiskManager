@@ -55,6 +55,9 @@ namespace Service.ClientRiskManager.Services
                         BarInterval = circleCardDeposit.CardDepositsSummary.BarInterval,
                         BarProgres = circleCardDeposit.CardDepositsSummary.BarProgres,
                         LeftHours = circleCardDeposit.CardDepositsSummary.LeftHours,
+                        LastDeposit30DaysLeftHours = circleCardDeposit.CardDepositsSummary.LastDeposit30DaysLeftHours,
+                        LastDeposit7DaysLeftHours = circleCardDeposit.CardDepositsSummary.LastDeposit7DaysLeftHours,
+                        LastDeposit1DaysLeftHours = circleCardDeposit.CardDepositsSummary.LastDeposit1DaysLeftHours,
                     }
                 };
                 return response;
