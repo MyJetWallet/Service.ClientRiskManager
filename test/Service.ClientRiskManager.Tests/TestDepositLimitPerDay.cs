@@ -42,7 +42,6 @@ namespace Service.ClientRiskManager.Tests
             Assert.IsTrue(cardDepositsSummary.LastDeposit1DaysLeftHours == 23);
             Assert.IsTrue(cardDepositsSummary.LastDeposit7DaysLeftHours == 167);
             Assert.IsTrue(cardDepositsSummary.LastDeposit30DaysLeftHours == 719);
-
             Assert.IsTrue(cardDepositsSummary.BarInterval == BarState.Day1);
             Assert.IsTrue(cardDepositsSummary.BarProgres == 50);
             Assert.IsTrue(cardDepositsSummary.LeftHours == 0);
@@ -71,7 +70,6 @@ namespace Service.ClientRiskManager.Tests
             Assert.IsTrue(cardDepositsSummary.LastDeposit1DaysLeftHours == 24);
             Assert.IsTrue(cardDepositsSummary.LastDeposit7DaysLeftHours == 168);
             Assert.IsTrue(cardDepositsSummary.LastDeposit30DaysLeftHours == 720);
-            
             Assert.IsTrue(cardDepositsSummary.BarInterval == BarState.Day7);
             Assert.IsTrue(cardDepositsSummary.BarProgres == 33);
             Assert.IsTrue(cardDepositsSummary.LeftHours == 24);
@@ -108,7 +106,6 @@ namespace Service.ClientRiskManager.Tests
             Assert.IsTrue(cardDepositsSummary.LastDeposit1DaysLeftHours == 23);
             Assert.IsTrue(cardDepositsSummary.LastDeposit7DaysLeftHours == 167);
             Assert.IsTrue(cardDepositsSummary.LastDeposit30DaysLeftHours == 719);
-            
             Assert.IsTrue(cardDepositsSummary.BarInterval == BarState.Day7);
             Assert.IsTrue(cardDepositsSummary.BarProgres == 67);
             Assert.IsTrue(cardDepositsSummary.LeftHours == 23);
@@ -154,8 +151,6 @@ namespace Service.ClientRiskManager.Tests
             Assert.IsTrue(cardDepositsSummary.LastDeposit1DaysLeftHours == 1);
             Assert.IsTrue(cardDepositsSummary.LastDeposit7DaysLeftHours == 145);
             Assert.IsTrue(cardDepositsSummary.LastDeposit30DaysLeftHours == 528);
-            
-            
             Assert.IsTrue(cardDepositsSummary.BarInterval == BarState.Day30);
             Assert.IsTrue(cardDepositsSummary.BarProgres == 100);
             Assert.IsTrue(cardDepositsSummary.LeftHours == 528);
