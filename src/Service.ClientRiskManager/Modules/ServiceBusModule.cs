@@ -1,9 +1,11 @@
 ﻿using Autofac;
 using MyJetWallet.Sdk.ServiceBus;
+using MyServiceBus.Abstractions;
 using Service.Bitgo.DepositDetector.Domain.Models;
 using Service.Circle.Webhooks.Domain.Models;
 using Service.ClientRiskManager.ServiceBus.FraudDetection;
 using Service.ClientRiskManager.Subscribers;
+using Service.Unlimint.Webhooks.Client;
 
 namespace Service.ClientRiskManager.Modules
 {
@@ -17,11 +19,14 @@ namespace Service.ClientRiskManager.Modules
                 Program.ReloadedSettings(e => e.SpotServiceBusHostPort),
                 Program.LogFactory);
 
+            builder.RegisterSignalUnlimintTransferSubscriber(serviceBusClient, queueName,
+                TopicQueueType.Permanent);
+
             builder.RegisterMyServiceBusPublisher<FraudDetectedMessage>(serviceBusClient, FraudDetectedMessage.TopicName, false);
 
             builder.RegisterMyServiceBusSubscriberSingle<FraudDetectedMessage>(serviceBusClient,
                 FraudDetectedMessage.TopicName,
-                queueName, 
+                queueName,
                 MyServiceBus.Abstractions.TopicQueueType.Permanent);
 
             builder
@@ -57,6 +62,9 @@ namespace Service.ClientRiskManager.Modules
             builder.RegisterType<SignalCircleCardSubscriber>().AutoActivate().SingleInstance();
             builder.RegisterType<SignalCircleTransferSubscriber>().AutoActivate().SingleInstance();
             builder.RegisterType<FraudDetectedMessageSubscriber>().AutoActivate().SingleInstance();
+            builder.RegisterType<Service.ClientRiskManager.Subscribers.SignalUnlimintTransferSubscriber>()
+                    .AutoActivate()
+                    .SingleInstance();
         }
     }
 }
