@@ -26,7 +26,7 @@ public class DepositRiskManager : IDepositRiskManager
 
     public DepositRiskManager(ILogger<DepositRiskManager> logger,
         IMyNoSqlServerDataWriter<ClientRiskNoSqlEntity> writer,
-        IBitgoDepositService bitgoDepositService, 
+        IBitgoDepositService bitgoDepositService,
         ICircleCardsService circleCardsService)
     {
         _logger = logger;
@@ -44,7 +44,7 @@ public class DepositRiskManager : IDepositRiskManager
         }
     }
 
-    private async Task UpsertDeposit(Deposit deposit,  CircleCardPaymentDetails paymentDetails)
+    private async Task UpsertDeposit(Deposit deposit, CircleCardPaymentDetails paymentDetails)
     {
         try
         {
@@ -54,27 +54,28 @@ public class DepositRiskManager : IDepositRiskManager
                 ClientRiskNoSqlEntity.GeneratePartitionKey(deposit.BrokerId),
                 ClientRiskNoSqlEntity.GenerateRowKey(deposit.ClientId));
 
-            var newDepositInUsd = deposit.Amount * deposit.AssetIndexPrice;
+            decimal balance = deposit.Amount + deposit.FeeAmount;
+            var newDepositInUsd = balance * deposit.AssetIndexPrice;
 
             if (cachedEntity != null)
             {
                 cachedEntity.CardDeposits.Add(new CircleClientDeposit
                 {
                     Date = deposit.EventDate,
-                    Balance = deposit.Amount,
+                    Balance = balance,
                     AssetSymbol = deposit.AssetSymbol,
                     BalanceInUsd = newDepositInUsd
                 });
-                
+
                 // Cleanup old deposits
                 var currDate = deposit.EventDate; //DateTime.UtcNow;
                 cachedEntity.CardDeposits = cachedEntity.CardDeposits
                     .Where(e => e.Date < currDate.AddMonths(-1))
                     .ToList();
-                
+
                 cachedEntity.CardDepositsSummary = DepositDayStatCalculator.PrepareDepositStat(
                     paymentDetails, cachedEntity.CardDeposits, deposit.EventDate);
-                
+
                 await _writer.InsertOrReplaceAsync(cachedEntity);
             }
             else
@@ -83,12 +84,12 @@ public class DepositRiskManager : IDepositRiskManager
                     new CircleClientDeposit
                     {
                         Date = deposit.EventDate,
-                        Balance = deposit.Amount,
+                        Balance = balance,
                         AssetSymbol = deposit.AssetSymbol,
                         BalanceInUsd = newDepositInUsd
                     },
                     paymentDetails);
-                
+
                 await _writer.InsertOrReplaceAsync(entity);
             }
         }
@@ -97,7 +98,7 @@ public class DepositRiskManager : IDepositRiskManager
             _logger.LogError(ex, "Unable to process CircleCard deposit due to {error}", ex.Message);
         }
     }
-    
+
     public async Task RecalculateAllAsync()
     {
         try
@@ -134,7 +135,7 @@ public class DepositRiskManager : IDepositRiskManager
                 deposits.AddRange(depositsFromDb);
             }
             var paymentDetails = (await _circleCardsService.GetCardPaymentDetails()).Data;
-            
+
             var depositsFromDbByClient = deposits
                 .GroupBy(e => new { e.BrokerId, e.ClientId },
                     (k, c) => new ClientRiskNoSqlEntity
@@ -146,14 +147,14 @@ public class DepositRiskManager : IDepositRiskManager
                         CardDeposits = c.Select(cs => new CircleClientDeposit
                         {
                             Date = cs.EventDate,
-                            Balance = cs.Amount,
-                            BalanceInUsd = cs.Amount * cs.AssetIndexPrice,
+                            Balance = cs.Amount + cs.FeeAmount,
+                            BalanceInUsd = (cs.Amount + cs.FeeAmount) * cs.AssetIndexPrice,
                             AssetSymbol = cs.AssetSymbol
                         }).ToList(),
                         CardDepositsSummary = new CircleClientDepositSummary()
                     })
                 .ToList();
-            
+
             foreach (var deposit in depositsFromDbByClient)
             {
                 deposit.CardDepositsSummary = DepositDayStatCalculator.PrepareDepositStat(
@@ -167,8 +168,8 @@ public class DepositRiskManager : IDepositRiskManager
             _logger.LogError(ex, "Unable to recalculate CircleCard client deposit due to {error}", ex.Message);
         }
     }
-    
-    public async Task <ClientRiskNoSqlEntity> GetAndRecalculateClientLastMonthRawAsync(string clientId, 
+
+    public async Task<ClientRiskNoSqlEntity> GetAndRecalculateClientLastMonthRawAsync(string clientId,
         string brokerId)
     {
         try
@@ -217,8 +218,8 @@ public class DepositRiskManager : IDepositRiskManager
                         CardDeposits = c.Select(cs => new CircleClientDeposit
                         {
                             Date = cs.EventDate,
-                            Balance = cs.Amount,
-                            BalanceInUsd = cs.Amount * cs.AssetIndexPrice,
+                            Balance = cs.Amount + cs.FeeAmount,
+                            BalanceInUsd = (cs.Amount + cs.FeeAmount) * cs.AssetIndexPrice,
                             AssetSymbol = cs.AssetSymbol
                         }).ToList(),
                         CardDepositsSummary = new CircleClientDepositSummary()
@@ -235,7 +236,7 @@ public class DepositRiskManager : IDepositRiskManager
                 CardDepositsSummary = new CircleClientDepositSummary()
             };
             var paymentDetails = (await _circleCardsService.GetCardPaymentDetails()).Data;
-            
+
             depositsToCalc.CardDepositsSummary = DepositDayStatCalculator.PrepareDepositStat(
                 paymentDetails, depositsToCalc.CardDeposits, currDate);
 
@@ -244,7 +245,7 @@ public class DepositRiskManager : IDepositRiskManager
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unable to recalculate CircleCard client {clientId} deposit due to {error}", 
+            _logger.LogError(ex, "Unable to recalculate CircleCard client {clientId} deposit due to {error}",
                 clientId, ex.Message);
             throw;
         }
